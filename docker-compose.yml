@@ -1,0 +1,84 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - event-network
+    # command: tail -f /dev/null
+    # extra_hosts:
+    #   - host.docker.internal:host-gateway
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  gateway:
+    build: 
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - JWT_SECRET=your_jwt_secret_key
+      - AUTH_SERVICE_HOST=auth
+      - AUTH_SERVICE_PORT=3004
+      - EVENT_SERVICE_HOST=event
+      - EVENT_SERVICE_PORT=3005
+    working_dir: /app
+    depends_on:
+      - auth
+      - event
+    networks:
+      - event-network
+
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - JWT_SECRET=your_jwt_secret_key
+      - JWT_EXPIRATION=1d
+      - MONGODB_URI=mongodb://root:password@mongodb:27017/auth-service?authSource=admin
+    working_dir: /app
+    # command: tail -f /dev/null
+    depends_on:
+      - mongodb
+    networks:
+      - event-network
+
+  event:
+    build:
+      context: ./event
+      dockerfile: Dockerfile
+    container_name: event-service
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+      - JWT_SECRET=your_jwt_secret_key
+      - MONGODB_URI=mongodb://root:password@mongodb:27017/event-service?authSource=admin
+    # command: tail -f /dev/null
+    depends_on:
+      - mongodb
+    networks:
+      - event-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  event-network:
+    driver: bridge

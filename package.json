@@ -1,0 +1,15 @@
+{
+  "name": "event-reward-management-platform",
+  "version": "1.0.0",
+  "description": "이벤트 및 보상 관리 플랫폼",
+  "scripts": {
+    "start": "docker-compose up",
+    "build": "docker-compose build",
+    "down": "docker-compose down"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "author": "",
+  "license": "ISC"
+}
