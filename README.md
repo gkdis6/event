@@ -70,13 +70,16 @@ MONGODB_URI=mongodb://mongodb:27017/[service-name]
 
 ### 실행 명령어
 ```bash
-# 전체 서비스 실행
+# 전체 서비스 실행 (프로덕션 환경)
 docker-compose up -d
 
-# 개별 서비스 실행
+# 개별 서비스 실행 (프로덕션 환경)
 docker-compose up -d gateway
 docker-compose up -d auth
 docker-compose up -d event
+
+# 개발 환경 실행 (코드 변경 시 자동 반영)
+docker-compose -f docker-compose.dev.yml up --build
 
 # 로그 확인
 docker-compose logs -f
@@ -150,6 +153,7 @@ this.processors.set(RewardType.NEW_REWARD, this.newRewardProcessor);
 
 4. **개발 중 마주한 이슈 및 고민**
    - **MongoDB 권한 문제**: Docker Compose로 MongoDB 컨테이너 실행 시 "Operation not permitted" 오류가 발생하여, 컨테이너의 권한 설정(cap_add, security_opt, ulimits) 및 익명 볼륨 사용을 통해 해결했습니다.
-   - **코드 중복 및 모노레포 고려**: 서비스 간 반복되는 코드(DTO, Enum 등)가 발생하여, Turbo와 같은 도구를 활용한 모노레포 구조로의 전환을 고려했으나 현재는 개별 서비스 구조를 유지하고 있습니다. 향후 프로젝트 규모가 커지면 모노레포 도입을 검토할 수 있습니다.
+   - **코드 중복 및 모노레포 고려**: 서비스 간 반복되는 코드(DTO, Enum 등)가 발생하여, Turbo와 같은 도구를 활용한 모노레포 구조로의 전환을 고려했고, 시도하였으나 swagger에 사용되는 DTO와 예시 데이터가 제대로 표시되지 않아 현재는 개별 서비스 구조를 유지하고 있습니다. 향후 프로젝트 규모가 커지면 모노레포 도입을 검토할 수 있습니다.
+   - **Event Service MODULE_NOT_FOUND 오류**: `docker-compose.dev.yml` 사용 시 `event-service`에서 모듈을 찾을 수 없는 오류가 발생했습니다. 이는 개발 환경의 볼륨 마운트 설정이 Dockerfile 빌드 결과를 덮어쓰면서 발생한 문제였습니다. `docker-compose.dev.yml`의 `event` 서비스 `volumes`에 익명 볼륨 `/app/event/dist`를 추가하고 `command`를 `npm run start:prod`로 변경하여 해결했습니다.
 
 이 시스템은 실제 프로덕션 환경에서도 활용 가능하도록 설계되었으며, 필요에 따라 기능을 확장할 수 있는 기반을 갖추고 있습니다.

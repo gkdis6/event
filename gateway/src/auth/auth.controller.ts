@@ -14,7 +14,7 @@ import {
   UseInterceptors,
   Request,
 } from '@nestjs/common';
-import { ClientProxy, RpcException, MessagePattern } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
 import { ApiTags, ApiBearerAuth, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { Public } from '../decorators/public.decorator';
 import { UserContextInterceptor } from '../interceptors/user-context.interceptor';
@@ -139,26 +139,26 @@ export class AuthController {
   }
 
   // Catch all other routes and proxy them to auth service
-  @ApiBearerAuth()
-  @All('*')
-  proxyAll(@Request() req: any, @Param('path') path: string, @Body() body: any): Observable<any> {
-    // Include user info in the request if authenticated
-    const payload = {
-      ...body,
-      user: req.user,
-      path,
-    };
+  // @ApiBearerAuth()
+  // @All('*')
+  // proxyAll(@Request() req: any, @Param('path') path: string, @Body() body: any): Observable<any> {
+  //   // Include user info in the request if authenticated
+  //   const payload = {
+  //     ...body,
+  //     user: req.user,
+  //     path,
+  //   };
     
-    return this.authClient
-      .send({ cmd: 'proxy', path }, payload)
-      .pipe(
-        timeout(5000),
-        catchError(err => {
-          if (err instanceof TimeoutError) {
-            throw new HttpException('Auth service timeout', HttpStatus.GATEWAY_TIMEOUT);
-          }
-          throw new HttpException(err.message || 'Auth service error', HttpStatus.BAD_GATEWAY);
-        })
-      );
-  }
+  //   return this.authClient
+  //     .send({ cmd: 'proxy', path }, payload)
+  //     .pipe(
+  //       timeout(5000),
+  //       catchError(err => {
+  //         if (err instanceof TimeoutError) {
+  //           throw new HttpException('Auth service timeout', HttpStatus.GATEWAY_TIMEOUT);
+  //         }
+  //         throw new HttpException(err.message || 'Auth service error', HttpStatus.BAD_GATEWAY);
+  //       })
+  //     );
+  // }
 }

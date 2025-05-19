@@ -42,8 +42,8 @@ services:
       - EVENT_SERVICE_PORT=3105
     volumes:
       - type: bind
-        source: ./gateway/src
-        target: /app/gateway/src
+        source: ./gateway
+        target: /app/src
     command: npm run start:dev
     depends_on:
       - auth
@@ -66,8 +66,8 @@ services:
       - MICROSERVICE_PORT=3104
     volumes:
       - type: bind
-        source: ./auth/src
-        target: /app/auth/src
+        source: ./auth
+        target: /app/src
     command: npm run start:dev
     depends_on:
       - mongodb
@@ -89,8 +89,7 @@ services:
     volumes:
       - type: bind
         source: ./event
-        target: /app/event
-      - /app/event/dist
+        target: /app/src
     command: npm run start:dev
     depends_on:
       - mongodb
