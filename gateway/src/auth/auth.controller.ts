@@ -14,13 +14,16 @@ import {
   UseInterceptors,
   Request,
 } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ClientProxy, RpcException, MessagePattern } from '@nestjs/microservices';
+import { ApiTags, ApiBearerAuth, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { Public } from '../decorators/public.decorator';
 import { UserContextInterceptor } from '../interceptors/user-context.interceptor';
 import { Observable } from 'rxjs';
 import { timeout, catchError } from 'rxjs/operators';
 import { TimeoutError } from 'rxjs';
+import { CreateUserDto } from '../dto/auth/create-user.dto';
+import { UpdateUserDto } from '../dto/auth/update-user.dto';
+import { LoginUserDto } from '../dto/auth/login-user.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -31,10 +34,20 @@ export class AuthController {
   ) {}
 
   @Public()
-  @Post('login')
-  login(@Body() loginData: any): Observable<any> {
+  @Post('register')
+  @ApiBody({ type: CreateUserDto, examples: {
+    'standard': {
+      summary: '회원가입 예시',
+      value: { username: 'newuser', password: 'newpassword', email: 'newuser@example.com', role: 'USER' }
+    },
+    'admin': {
+      summary: '관리자 회원가입 예시',
+      value: { username: 'admin', password: 'admin123', email: 'admin@example.com', role: 'ADMIN' }
+    },
+  }})
+  register(@Body() registerData: CreateUserDto): Observable<any> {
     return this.authClient
-      .send({ cmd: 'login' }, loginData)
+      .send({ cmd: 'register' }, registerData)
       .pipe(
         timeout(5000),
         catchError(err => {
@@ -47,10 +60,30 @@ export class AuthController {
   }
 
   @Public()
-  @Post('register')
-  register(@Body() registerData: any): Observable<any> {
+  @Post('login')
+  @ApiOperation({
+    summary: '사용자 로그인',
+    description: '사용자 인증 및 JWT 토큰 발급'
+  })
+  @ApiBody({
+    type: LoginUserDto,
+    description: '로그인 요청 데이터',
+    examples: {
+      'standard': {
+        summary: '로그인 예시',
+        description: '일반 사용자 로그인 예시',
+        value: { username: 'newuser', password: 'newpassword' }
+      },
+      'admin': {
+        summary: '관리자 로그인 예시',
+        description: '관리자 계정 로그인',
+        value: { username: 'admin', password: 'admin123' }
+      }
+    }
+  })
+  login(@Body() loginData: LoginUserDto): Observable<any> {
     return this.authClient
-      .send({ cmd: 'register' }, registerData)
+      .send({ cmd: 'login' }, loginData)
       .pipe(
         timeout(5000),
         catchError(err => {
@@ -80,7 +113,13 @@ export class AuthController {
 
   @ApiBearerAuth()
   @Put('profile')
-  updateProfile(@Request() req: any, @Body() updateData: any): Observable<any> {
+  @ApiBody({ type: UpdateUserDto, examples: {
+    'example': {
+      summary: '프로필 업데이트 예시',
+      value: { email: 'updated@example.com', newPassword: 'updatedpassword', isActive: true, roles: ['USER', 'ADMIN'] }
+    }
+  }})
+  updateProfile(@Request() req: any, @Body() updateData: UpdateUserDto): Observable<any> {
     // Include user ID in the request data
     const data = {
       ...updateData,

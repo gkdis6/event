@@ -22,4 +22,4 @@ COPY . .
 RUN npm run build
 
 # 서비스 실행 명령
-CMD ["node", "dist/main.js"]
+# CMD ["node", "dist/main.js"]

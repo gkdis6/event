@@ -78,6 +78,44 @@ export class EventsController {
     return this.eventsService.findAll(status);
   }
 
+  @MessagePattern({ cmd: 'get-event' })
+  async getEventMessage(data: { id: string }) {
+    const { id } = data;
+    return this.eventsService.findById(id);
+  }
+
+  @MessagePattern({ cmd: 'create-event' })
+  async createEventMessage(data: any) {
+    const { createdBy, ...createEventDto } = data;
+    return this.eventsService.create(createEventDto, createdBy);
+  }
+
+  @MessagePattern({ cmd: 'update-event' })
+  async updateEventMessage(data: any) {
+    const { id, updatedBy, ...updateEventDto } = data;
+    return this.eventsService.update(id, updateEventDto);
+  }
+
+  @MessagePattern({ cmd: 'delete-event' })
+  async deleteEventMessage(data: { id: string; deletedBy: string }) {
+    const { id } = data;
+    return { success: await this.eventsService.remove(id) };
+  }
+
+  @MessagePattern({ cmd: 'request-reward' })
+  async requestRewardMessage(data: any) {
+    const { eventId, userId } = data;
+    // 이 부분은 보상 요청 처리 로직이 필요합니다.
+    // 실제 구현에서는 RewardsService를 주입받아 처리해야 합니다.
+    throw new Error('Not implemented yet'); // 임시 구현
+  }
+
+  @MessagePattern({ cmd: 'proxy' })
+  async proxyMessage(data: any) {
+    // path와 기타 데이터에 따라 적절한 서비스 메소드로 라우팅
+    throw new Error('Proxy pattern not implemented yet'); // 임시 구현
+  }
+
   @MessagePattern('validate_event_condition')
   async validateCondition(data: { userId: string; eventId: string }) {
     const { userId, eventId } = data;

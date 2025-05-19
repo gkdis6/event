@@ -11,7 +11,6 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=password
-      - MONGO_INITDB_DATABASE=event-service,auth-service
     networks:
       - event-network
     cap_add:
@@ -26,9 +25,9 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-
+  
   gateway:
-    build: 
+    build:
       context: ./gateway
       dockerfile: Dockerfile
     container_name: gateway-service
@@ -41,7 +40,11 @@ services:
       - AUTH_SERVICE_PORT=3104
       - EVENT_SERVICE_HOST=event
       - EVENT_SERVICE_PORT=3105
-    command: npm run start
+    volumes:
+      - type: bind
+        source: ./gateway/src
+        target: /app/gateway/src
+    command: npm run start:dev
     depends_on:
       - auth
       - event
@@ -60,9 +63,14 @@ services:
       - JWT_SECRET=your_jwt_secret_key
       - JWT_EXPIRATION=1d
       - MONGODB_URI=mongodb://root:password@mongodb:27017/auth-service?authSource=admin
+      - MICROSERVICE_PORT=3104
+    volumes:
+      - type: bind
+        source: ./auth/src
+        target: /app/auth/src
+    command: npm run start:dev
     depends_on:
       - mongodb
-    command: npm run start
     networks:
       - event-network
 
@@ -77,14 +85,20 @@ services:
       - PORT=3005
       - JWT_SECRET=your_jwt_secret_key
       - MONGODB_URI=mongodb://root:password@mongodb:27017/event-service?authSource=admin
+      - MICROSERVICE_PORT=3105
+    volumes:
+      - type: bind
+        source: ./event
+        target: /app/event
+      - /app/event/dist
+    command: npm run start:dev
     depends_on:
       - mongodb
-    command: npm run start
     networks:
       - event-network
 
 volumes: {}
-
+  
 networks:
   event-network:
     driver: bridge

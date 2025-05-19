@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "이벤트 및 보상 관리 플랫폼",
   "scripts": {
-    "start": "docker-compose up",
+    "start": "echo '루트 패키지에서는 직접 실행하지 마세요. 각 서비스 디렉토리에서 실행하세요.'",
+    "start:docker": "docker-compose up",
     "build": "docker-compose build",
     "down": "docker-compose down"
   },

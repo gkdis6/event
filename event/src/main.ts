@@ -8,11 +8,16 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
+  // 환경 변수에서 설정 가져오기
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('PORT') || 3005; // HTTP 포트 기본값 3005번으로 설정
+  const microservicePort = configService.get<number>('MICROSERVICE_PORT') || 3105; // 마이크로서비스 포트 기본값 3105번으로 설정
+
   // 마이크로서비스 설정 추가
   app.connectMicroservice({
     transport: Transport.TCP,
     options: {
-      port: 3005,
+      port: microservicePort, // 환경 변수 사용
     },
   });
   
@@ -38,16 +43,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  // 환경 변수에서 포트 설정 가져오기
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') || 3005;
-  
   // 마이크로서비스 시작
   await app.startAllMicroservices();
-  console.log(`Event Service Microservice is running on port 3005`);
   
   // HTTP 서버 시작
   await app.listen(port);
-  console.log(`Event Service HTTP is running on port ${port}`);
+  console.log(`Event Service is running on HTTP port ${port} and TCP port ${microservicePort}`);
 }
 bootstrap();
