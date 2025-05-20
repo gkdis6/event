@@ -121,6 +121,8 @@ docker-compose -f docker-compose.dev.yml up -d
 3. "Authorize" 버튼 클릭하여 설정 완료
 4. 이제 인증이 필요한 모든 API 요청에 자동으로 토큰이 포함됩니다
 
+![Swagger Authorize](image.png)
+
 토큰은 `/auth/login` API를 호출하여 얻을 수 있습니다. 응답에서 받은 토큰을 복사하여 위 과정에 따라 설정하면 됩니다.
 
 ### Swagger를 통한 테스트 시나리오 (Gateway 서비스: `http://localhost:3003/api` 기반)
