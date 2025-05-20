@@ -21,18 +21,18 @@ export class PermissionService {
    * @returns 권한 검증 결과
    */
   async validatePermission(
-    userId: string,
+    userId: string, // 사용자 ID를 인수로 받음
     path: string,
     method: string,
     userRoles: string[] = [],
   ): Promise<{ hasPermission: boolean; message?: string }> {
     try {
-      // 1. 사용자가 존재하고 활성화된 상태인지 확인
-      const user = await this.usersService.findOne(userId);
+      // 1. 사용자가 존재하고 활성화된 상태인지 확인 (ID로 조회)
+      const user = await this.usersService.findById(userId); // findOne 대신 findById 사용
       if (!user) {
-        return { 
-          hasPermission: false, 
-          message: '존재하지 않는 사용자입니다.' 
+        return {
+          hasPermission: false,
+          message: '존재하지 않는 사용자입니다.'
         };
       }
       
@@ -56,28 +56,28 @@ export class PermissionService {
         }
         
         // 나머지 이벤트 관리 API는 관리자 권한 필요
-        const hasAdminRole = 
-          userRoles.includes(Role.ADMIN) || 
+        const hasAdminRole =
+          userRoles.includes(Role.ADMIN) ||
           user.roles?.includes(Role.ADMIN);
-          
+
         if (!hasAdminRole) {
-          return { 
-            hasPermission: false, 
-            message: '이벤트 관리는 관리자 권한이 필요합니다.' 
+          return {
+            hasPermission: false,
+            message: '이벤트 관리는 관리자 권한이 필요합니다.'
           };
         }
       }
-      
+
       // 3. 기타 경로에 대한 권한 검증 로직
       // 필요에 따라 여기에 추가 권한 검증 로직 구현
-      
+
       // 기본적으로 권한 허용
       return { hasPermission: true };
     } catch (error) {
       console.error(`Permission validation error: ${error.message}`);
-      return { 
-        hasPermission: false, 
-        message: '권한 검증 중 오류가 발생했습니다.' 
+      return {
+        hasPermission: false,
+        message: '권한 검증 중 오류가 발생했습니다.'
       };
     }
   }

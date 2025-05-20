@@ -9,3 +9,6 @@ RUN npm install
 
 # 애플리케이션 빌드
 RUN npm run build
+
+# TCP 마이크로서비스 포트 노출
+EXPOSE 3104

@@ -42,4 +42,4 @@ lerna-debug.log*
 **/.env.production.local
 
 # Docker volumes
-/mongodb_data
+/mongodb

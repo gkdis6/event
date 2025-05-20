@@ -160,6 +160,36 @@ export class AuthMsController {
   }
 
   /**
+   * 사용자 역할 조회
+   * @param data.userId 사용자 ID
+   */
+  @MessagePattern({ cmd: 'get-user-roles' })
+  async getUserRoles(data: { userId: string }) {
+    try {
+      const user = await this.usersService.findById(data.userId);
+      if (!user) {
+        return {
+          success: false,
+          message: '사용자를 찾을 수 없습니다.',
+          statusCode: 404,
+        };
+      }
+
+      return {
+        success: true,
+        message: '사용자 역할 조회 성공',
+        roles: user.roles, // 사용자의 roles 속성 반환
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message || '사용자 역할 조회 중 오류가 발생했습니다.',
+        statusCode: error.status || 500,
+      };
+    }
+  }
+
+  /**
    * 기타 인증 관련 요청 처리
    * 게이트웨이의 'proxy' 메시지 패턴을 처리합니다.
    */

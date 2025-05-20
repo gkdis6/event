@@ -7,7 +7,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - /data/db
+      - ./mongodb:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=password
@@ -58,6 +58,7 @@ services:
     container_name: auth-service
     ports:
       - "3004:3004"
+      # - "3104:3104" # TCP 마이크로서비스 포트 추가
     environment:
       - PORT=3004
       - JWT_SECRET=your_jwt_secret_key
@@ -81,11 +82,13 @@ services:
     container_name: event-service
     ports:
       - "3005:3005"
+      # - "3105:3105"
     environment:
       - PORT=3005
       - JWT_SECRET=your_jwt_secret_key
       - MONGODB_URI=mongodb://root:password@mongodb:27017/event-service?authSource=admin
       - MICROSERVICE_PORT=3105
+      - EVENT_SERVICE_PORT=3105
     volumes:
       - type: bind
         source: ./event
@@ -96,8 +99,14 @@ services:
     networks:
       - event-network
 
-volumes: {}
+volumes:
+  mongodb:
   
 networks:
   event-network:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1

@@ -48,10 +48,11 @@ export class CreateEventDto {
   @ApiProperty({
     description: '이벤트 조건 데이터',
     example: { requiredDays: 7 },
+    required: false,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsObject()
-  conditionData: any;
+  conditionData?: any;
 
   @ApiProperty({
     description: '이벤트 상태',

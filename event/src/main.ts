@@ -17,6 +17,7 @@ async function bootstrap() {
   app.connectMicroservice({
     transport: Transport.TCP,
     options: {
+      host: '0.0.0.0', // 모든 네트워크 인터페이스에서 수신 대기하도록 설정
       port: microservicePort, // 환경 변수 사용
     },
   });

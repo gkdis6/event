@@ -23,7 +23,7 @@ import { AuthModule } from '../auth/auth.module';
           transport: Transport.TCP,
           options: {
             host: configService.get('EVENT_SERVICE_HOST', 'event'),
-            port: configService.get('EVENT_MICROSERVICE_PORT', 3105),
+            port: configService.get('EVENT_SERVICE_PORT', 3105),
           },
         }),
       },
